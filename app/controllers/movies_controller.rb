@@ -14,14 +14,32 @@ class MoviesController < ApplicationController
   def update
     @movie = Movie.find(params[:id])
 
-    movie_params = params
-      .require(:movie)
-      .permit(:title, :rating, :description, :released_on, :total_gross)
-
     if @movie.update(movie_params)
       redirect_to @movie
     else
       render :edit # render the edit template
     end
+  end
+
+  def new
+    @movie = Movie.new
+  end
+
+  def create
+    @movie = Movie.new(movie_params)
+
+    if @movie.save
+      redirect_to @movie
+    else
+      render :new # render the new template
+    end
+  end
+
+  private
+
+  def movie_params
+    params
+      .require(:movie)
+      .permit(:title, :rating, :description, :released_on, :total_gross)
   end
 end
