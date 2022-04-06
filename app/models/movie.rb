@@ -13,7 +13,12 @@ class Movie < ApplicationRecord
   validates :rating, inclusion: { in: RATINGS }
 
   def flop?
-    total_gross.blank? || total_gross < 225_000_000
+  def average_stars
+    reviews.average(:stars) || 0.0
+  end
+
+  def average_stars_as_percentage
+    (average_stars / 5.0) * 100
   end
 
   def self.released
