@@ -13,6 +13,13 @@ class Movie < ApplicationRecord
   validates :rating, inclusion: { in: RATINGS }
 
   def flop?
+    if reviews.size > 50 && average_stars > 4
+      return false
+    else
+      return total_gross.blank? || total_gross < 225_000_000
+    end
+  end
+
   def average_stars
     reviews.average(:stars) || 0.0
   end
