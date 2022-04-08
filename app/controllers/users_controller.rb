@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
-  before_action :require_signin, except: [:new, :create]
-  before_action :require_correct_user, only: [:edit, :update, :destroy]
+  before_action :require_signin, except: %i[new create]
+  before_action :require_correct_user, only: %i[edit update destroy]
 
   def index
     @users = User.all
@@ -8,6 +8,7 @@ class UsersController < ApplicationController
 
   def show
     @user = User.find(params[:id])
+    @reviews = @user.reviews
   end
 
   def new
@@ -21,7 +22,7 @@ class UsersController < ApplicationController
 
     if @user.save
       session[:user_id] = @user.id
-      redirect_to @user, notice: "Thank you for signing up!"
+      redirect_to @user, notice: 'Thank you for signing up!'
     else
       render :new
     end
@@ -29,7 +30,7 @@ class UsersController < ApplicationController
 
   def update
     if @user.update(user_params)
-      redirect_to @user, notice: "Account successfully updated!"
+      redirect_to @user, notice: 'Account successfully updated!'
     else
       render :edit
     end
@@ -38,9 +39,9 @@ class UsersController < ApplicationController
   def destroy
     if @user.destroy
       session[:user_id] = nil
-      redirect_to movies_url, danger: "Account was successfully deleted."
+      redirect_to movies_url, danger: 'Account was successfully deleted.'
     else
-      flash.now[:alert] = "There was a problem deleting your account."
+      flash.now[:alert] = 'There was a problem deleting your account.'
       render :show
     end
   end
