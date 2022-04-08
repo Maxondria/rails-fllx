@@ -1,12 +1,14 @@
 class UsersController < ApplicationController
   before_action :require_signin, except: [:new, :create]
-  before_action :set_user, only: [:show, :edit, :destroy, :update]
+  before_action :require_correct_user, only: [:edit, :update, :destroy]
 
   def index
     @users = User.all
   end
 
-  def show; end
+  def show
+    @user = User.find(params[:id])
+  end
 
   def new
     @user = User.new
@@ -51,7 +53,8 @@ class UsersController < ApplicationController
       .permit(:name, :email, :username, :password, :password_confirmation)
   end
 
-  def set_user
+  def require_correct_user
     @user = User.find(params[:id])
+    redirect_to movies_url unless current_user?(@user)
   end
 end

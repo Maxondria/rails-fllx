@@ -7,15 +7,8 @@ class SessionsController < ApplicationController
     if user&.authenticate(params[:password])
       session[:user_id] = user.id
 
-      # previous_url gets set during the require_signin before_action in users_controller.rb
-      previous_url = session[:previous_url]
-
-      if previous_url
-        session[:previous_url] = nil
-        redirect_to previous_url, notice: "Welcome back, #{user.name}!"
-      else
-        redirect_to user, notice: "Welcome back, #{user.name}!"
-      end
+      redirect_to (session[:previous_url] || user), notice: "Welcome back, #{user.name}!"
+      session[:previous_url] = nil
     else
       flash.now[:alert] = "Invalid email/password combination"
       render :new
@@ -23,5 +16,7 @@ class SessionsController < ApplicationController
   end
 
   def destroy
+    session[:user_id] = nil
+    redirect_to signin_path, notice: "You have successfully signed out."
   end
 end
