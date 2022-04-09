@@ -1,15 +1,18 @@
 class Movie < ApplicationRecord
   has_many :reviews, dependent: :destroy
+  has_many :favorites, dependent: :destroy
+  has_many :fans, through: :favorites, source: :user
 
-  RATINGS = %w(G PG PG-13 R NC-17)
+  RATINGS = %w[G PG PG-13 R NC-17]
 
   validates :title, :released_on, presence: true
   validates :description, length: { minimum: 25 }
   validates :total_gross, numericality: { greater_than_or_equal_to: 0 }
-  validates :image_file_name, format: {
-                                with: /\w+\.(jpg|png)\z/i,
-                                message: "must be a JPG or PNG image",
-                              }
+  validates :image_file_name,
+            format: {
+              with: /\w+\.(jpg|png)\z/i,
+              message: 'must be a JPG or PNG image',
+            }
   validates :rating, inclusion: { in: RATINGS }
 
   def flop?
@@ -29,7 +32,7 @@ class Movie < ApplicationRecord
   end
 
   def self.released
-    where("released_on <= ?", Time.now).order(released_on: :desc)
+    where('released_on <= ?', Time.now).order(released_on: :desc)
   end
 
   def self.hits
