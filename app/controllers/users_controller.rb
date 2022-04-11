@@ -1,13 +1,13 @@
 class UsersController < ApplicationController
   before_action :require_signin, except: %i[new create]
   before_action :require_correct_user, only: %i[edit update destroy]
+  before_action :set_user, only: %i[show]
 
   def index
     @users = User.not_admins
   end
 
   def show
-    @user = User.find(params[:id])
     @reviews = @user.reviews
     @favorite_movies = @user.favorite_movies
   end
@@ -56,7 +56,11 @@ class UsersController < ApplicationController
   end
 
   def require_correct_user
-    @user = User.find(params[:id])
+    @user = User.find_by!(slug: params[:id])
     redirect_to movies_url unless current_user?(@user)
+  end
+
+  def set_user
+    @user = User.find_by!(slug: params[:id])
   end
 end
