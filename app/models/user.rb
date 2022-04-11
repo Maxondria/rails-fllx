@@ -22,11 +22,16 @@ class User < ApplicationRecord
               case_sensitive: false,
             }
 
+  scope :by_email_or_username,
+        ->(email_or_username) {
+          where(email: email_or_username)
+            .or(where(username: email_or_username))
+            .first
+        }
+  scope :by_name, -> { order(:name) }
+  scope :not_admins, -> { by_name.where(admin: false) }
+
   def gravatar_id
     Digest::MD5.hexdigest(email.downcase)
-  end
-
-  def self.find_by_email_or_username(email_or_username)
-    where(email: email_or_username).or(where(username: email_or_username)).first
   end
 end

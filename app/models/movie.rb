@@ -1,5 +1,5 @@
 class Movie < ApplicationRecord
-  has_many :reviews, dependent: :destroy
+  has_many :reviews, -> { order(created_at: :desc) }, dependent: :destroy
   has_many :favorites, dependent: :destroy
   has_many :fans, through: :favorites, source: :user
   has_many :characterizations, dependent: :destroy
@@ -17,6 +17,23 @@ class Movie < ApplicationRecord
             }
   validates :rating, inclusion: { in: RATINGS }
 
+  scope :released,
+        -> { where('released_on <= ?', Time.now).order(released_on: :desc) }
+  scope :upcoming,
+        -> { where('released_on > ?', Time.now).order(released_on: :asc) }
+  scope :hits,
+        -> { where(total_gross: 300_000_000..).order(total_gross: :desc) }
+  scope :flops,
+        -> { where(total_gross: ...225_000_000).order(total_gross: :asc) }
+  scope :recent, ->(max = 5) { order(created_at: :desc).limit(max) }
+  scope :past_n_days, ->(days) { where('created_at >= ?', days.days.ago) }
+  scope :grossed_less_than, ->(amount) { where('total_gross < ?', amount) }
+  scope :grossed_greater_than, ->(amount) { where('total_gross > ?', amount) }
+  scope :recently_reviewed,
+        ->(max = 10) {
+          includes(:reviews).order('reviews.created_at desc').limit(max)
+        }
+
   def flop?
     if reviews.size > 50 && average_stars > 4
       return false
@@ -31,21 +48,5 @@ class Movie < ApplicationRecord
 
   def average_stars_as_percentage
     (average_stars / 5.0) * 100
-  end
-
-  def self.released
-    where('released_on <= ?', Time.now).order(released_on: :desc)
-  end
-
-  def self.hits
-    where(total_gross: 300_000_000..).order(total_gross: :desc)
-  end
-
-  def self.flops
-    where(total_gross: ...225_000_000).order(total_gross: :asc)
-  end
-
-  def self.recently_added
-    order(created_at: :desc).limit(3)
   end
 end
