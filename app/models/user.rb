@@ -33,6 +33,7 @@ class User < ApplicationRecord
         }
   scope :by_name, -> { order(:name) }
   scope :not_admins, -> { by_name.where(admin: false) }
+  scope :admins, -> { by_name.where(admin: true) }
 
   def gravatar_id
     Digest::MD5.hexdigest(email.downcase)
